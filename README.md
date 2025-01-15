@@ -93,6 +93,192 @@ Step 4: Clean up the resources
 4.2 Confirm that you want to terminate the instance by clicking the **Terminate** button
 
 
+## EC2 Auto Scaling Hands On Lab
+
+AWS Auto Scaling monitors your applications and automatically adjusts capacity to maintain steady, predictable performance at the lowest possible cost. Using Auto Scaling makes it easy to setup application scaling for multiple resources across multiple services in minutes. Auto scaling makes scaling simple with recommendations that allow you to optimize performance, cost or balance between them. With AWS Auto scaling, your applications will always have the right resources at the right time. 
+
+Lab Prerequisites
+
+We will need to create an AMI (Amazon Machine Image) for our Auto Scaling group but first we need to setup a web host. The AMI will be generated from the instance and then auto-scale the instance behind a load balancer. 
+
+Step 1: Download and Launch the CloudFormation template
+
+1.1 Download the CloudFormation template (you can find the template in the repo) and save it to your local hard drive
+
+1.2 Open the CloudFormation serice on AWS
+
+1.3 Select the **Create stack** button and then select **With new resources (standard)**
+
+1.4 Under the "Specify template" section, select **Upload a template file** and then select the **Choose file** button. Select the template that you downloaded previously and then click on the **Next** button
+
+1.5 On the Specify stack details page
+* Create a stack name
+* Leave "AmiID" as the default value
+* Under "InstanceType" select the **t2.micro**
+* Under "MyIP" input the IP address of your local machine followed by a /32
+* Under "MyVPC" select the VPC that you want to use or you can use the default VPC
+* Under "PublicSubnet" select a subnet with your VPC that has internet access
+
+1.6 Once you have entered all of those details, click on **Next**. On this page, you can leave everything as default and click on **Next** again
+
+1.7 On the "Review and create" page, review your settings and click **Submit** start building the web server
+
+<img width="959" alt="1" src="https://github.com/user-attachments/assets/35e25ec4-9da1-4741-bc86-b88cb297059c" />
+
+Step 2: Confirm the successful setup of the instance
+
+2.1 Navigate to the Ec2 service console and select **Instances** from the left hand menu
+
+<img width="946" alt="2" src="https://github.com/user-attachments/assets/f7646e3c-913c-43c5-9bde-3a3d5f945c63" />
+
+2.2 Select the instance and copy the "Public IPv4 DNS" address and paste the address into a new tab in the browser
+
+<img width="952" alt="3" src="https://github.com/user-attachments/assets/7fde7083-7b29-47f5-8225-22150c35fe3b" />
+
+Step 3: Generate a custom AMI of the web server 
+
+3.1 Open the EC2 console and **Right click** the web server instance. Choose **Create image** from the context menu
+
+3.2 On the "Create Image" page, put in an image name and a description. Leave the Instance volumes as default and then click **Create Image**
+
+3.3 After a few minutes the AMI will be created
+
+<img width="956" alt="4" src="https://github.com/user-attachments/assets/32bc829c-5adc-4639-bf6b-6bc76cec4483" />
+
+Step 4: Create a new security group for the Auto Scaling group
+
+4.1 Open the EC2 console, on the left hand menu under "Network & Security" select **Security Groups**
+
+4.2 Click on the **Create security group** button
+
+4.3 Name the security group, you can also use the same name for the description. Select the same VPC that was used when creating the EC2 web server using CloudFormation.
+
+4.4 Leave the inbound rules and outbound rules as is and click on **Create security group**
+
+<img width="958" alt="5" src="https://github.com/user-attachments/assets/bd46a63c-a508-4c2f-9025-7a2b5e916f39" />
+
+The prerequisite steps are now completed
+
+Step 1: Create a Launch template
+
+1.1 Navigate to the EC2 Service Console and select **Launch Templates**
+
+1.2 Click on the **Create launch template** button
+
+1.3 On the "Create launch template" page do the following:
+
+* Create a launch template name
+* Template version description: this is optional
+* Auto scaling guidance: **Check the box** to provide guidance
+* "Launch Template Contents" defines the parameters for the instances in the ASG (Auto Scaling group)
+  * AMI: Select "My AMIs" and "Owned by me". Search for the AMI that was created earlier and select it
+  * Instance type: **t2.micro**
+  * Key pair: Select the key pair that was created in the first lab
+  * Networking settings:
+    * Subnet: don't include in launch template
+    * Firewall (security groups): Select "Select existing security group" and then select the security group that was created during the prerequisite
+  * Configure storage: leave as default
+  * Resource tags: None
+  * Advanced details: select the arrow to expand "Advanced details" and under "Detailed CloudWatch monitoring" select **Enable**. Leave everything else as default.
+
+1.4 Check that the configurations are correct and click **Create launch template**, then click **View launch template**
+
+<img width="958" alt="6" src="https://github.com/user-attachments/assets/cfc952b6-0736-411c-ab32-d9245a8b9895" />
+
+Step 2: Create a target group
+
+2.1 Open the EC2 service console and in the left hand menu select **Target groups** under "Load balancing"
+
+2.2 Select the **Create target group** button
+
+2.3 Under the "Choose a target type" section, make sure that **Instances** is selected
+
+2.4 Under the "Target group name" enter a name for the target group
+
+2.5 Make sure that IPv4 and the VPC that was used in the CloudFormation deployment is selected
+
+2.6 Under "Health checks" make that **HTTP** is selected and for "Health check path" enter /health
+
+2.7 Expand the **Advanced health check settings** and update the thresholds with the following:
+
+* Healthy threshold: 2
+* Unhealthy threshold: 5
+* Timeout: 20
+
+2.8 Leave the rests as defaults and select the **Next** button
+
+2.9 Leave the "Register targets" page as is and click the **Create target group** button
+
+Step 3: Create an Auto Scaling Group
+
+3.1 Open the EC2 Service console and select **Auto scaling groups** in the left navigation pane
+
+3.2 Select the **Create an Auto Scaling group** button
+
+3.3 Give the Auto scaling group a name and on the "Launch template" section, select the launch template that was previously created and click **Next**
+
+3.4 Configure the following settings and then click "Next"
+
+Network
+* VPC: Select the VPC that you selected earlier for the Launch template
+* Availability zones and subnets: select the subnets where you would like the ASG to use to create hosts
+* Availability zone distribution: Balanced only
+
+3.5 Specify load balancing and health checks:
+* Load balancing: Attach to a new load balancer
+* Load balancer type: Application load balancer
+* Load balancer name: create a new for the load balancer
+* Load balancer scheme: Internet facing
+* Networking mapping: The AZs and subnets that you selected in the previous step
+* Listeners and routing: Keep the Port as **80** and the target group was previously created from the "Default routing (forwarded to)"
+* Health checks and additional settings: leave as default and select **Next**
+
+
+3.6 Configure the group size and scaling policies with the following and then select **Next**:
+* Group size:
+  * Desired capacity: 1
+* Scaling:
+  * Min desired capacity: 1
+  * Max desired capacity: 5
+  * Select **Target tracking scaling policy**
+  * Metric type: **Average CPU utilization**
+  * Target value: 25
+
+3.7 Select on the Add notifications page
+
+3.8 Add a tag with the following and then select **Next**
+* Key: Name
+* Value: name of the auto scaling group
+
+3.9 Review the settings and then select **Create Auto Scaling group**
+
+<img width="955" alt="7" src="https://github.com/user-attachments/assets/feb0fca4-e8c6-4260-839b-accbd1c3682b" />
+
+
+
+
+ 
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
