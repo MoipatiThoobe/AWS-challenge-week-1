@@ -92,6 +92,8 @@ Step 4: Clean up the resources
 
 4.2 Confirm that you want to terminate the instance by clicking the **Terminate** button
 
+In this Lab I created a new key pair, launched a web server instance and connected to the instance using Remote Desktop. 
+
 
 ## EC2 Auto Scaling Hands On Lab
 
@@ -253,6 +255,95 @@ Network
 3.9 Review the settings and then select **Create Auto Scaling group**
 
 <img width="955" alt="7" src="https://github.com/user-attachments/assets/feb0fca4-e8c6-4260-839b-accbd1c3682b" />
+
+Step 4: Creating a Load Balancer Security group
+
+4.1 Navigate to the EC2 service console and on the left hand menu select **Security Groups**
+
+4.2 Enter the following details:
+* Security group name
+* Description
+* VPC: select your VPC
+
+4.3 Inbound rules:
+* Click on the **Add rule** button
+* Type: HTTP
+* Source: Custom : Input your public IP address followed by /32
+
+4.4 Outbound rules:
+* Change the rule with the "Type" of **All traffic** to **HTTP**
+* Under "Destination" select **Custom** and in the field select the security group that you created for the auto scaling group
+
+4.5 Select **Create security group** button when finished
+
+<img width="951" alt="8" src="https://github.com/user-attachments/assets/5069c1d4-89ee-4a98-bb83-b0b28934de76" />
+
+4.6 On the EC2 service page left side menu find "Load balancing" and select **Load Balancers**. Select the load balancer you created and make sure that the state is "Active"
+
+4.7 On the load balancer "Details" page, select **Security** tab and then select the **Edit** button
+
+4.8 Remove the auto scaling group security group and select the load balancer security that we just created in the "Security groups" dropdown
+
+4.9 Select the **Save changes** button when finished
+
+Step 5: Add Inbound Rule to the Auto Scaling Security Group
+
+5.1 On the EC2 service and select **Security Groups**
+
+5.2 Select the auto scaling security group
+
+5.3 Select the **Inbound rules** tab and click **Edit inbound rules** button and then the **Add rule** button
+
+5.4 From the "Type" drop down select HTTP. Under "Source" select custom and in the field specify the Load balancer security group as the "Source"
+
+<img width="950" alt="9" src="https://github.com/user-attachments/assets/2dde698f-8b16-41ae-9846-14b5ee443cd3" />
+
+Step 6: Test the Auto Scaling group
+
+6.1 Open the Load Balancers page and under the "Description" tab, copy the DNS name and paste it into a web browser
+
+<img width="955" alt="10" src="https://github.com/user-attachments/assets/f2bf96db-710b-437d-ba98-0f8d686107de" />
+
+6.2 At the botton of the web page, click the **Start CPU Load Generation** link. When the CPU load reaches 25% for a sustained period, the Auto scaling policy will start creating new instances to meet demand. 
+
+6.3 In the "Instances" sections we will see new instances being created by the Auto Scaling Group
+
+<img width="948" alt="11 3" src="https://github.com/user-attachments/assets/ee2bdda5-68d0-4c68-a1e7-d5085dbf12e7" />
+
+6.4 Once a number of new instances have successfully started, refresh the web broswer of the web host. The Instance ID, Availability zone and Private IP will change as the load balancer distributes the requests across the auto scaling group.
+
+<img width="939" alt="12 1" src="https://github.com/user-attachments/assets/a727aca5-a381-464b-b1a2-c40a371e0e85" />
+
+<img width="946" alt="12 2" src="https://github.com/user-attachments/assets/b77f58f0-7bb5-4309-bcc4-eccd652b4234" />
+
+<img width="950" alt="12" src="https://github.com/user-attachments/assets/fcdcfc0c-31ff-444b-a8d2-c3201ea1d80f" />
+
+Step 7: Clean up resources
+
+7.1 Delete the Load balancer
+
+7.2 Delete the Target Group
+
+7.3 Delete the Auto Scaling Group
+
+7.4 Delete the Launch Template
+
+7.5 Delete the Security Group
+
+7.6 Delete the CloudFormation Stack
+
+In this lab, I learned how to create an AMI, included it in the setup of the Launch Template, created an EC2 Auto scaling group behind an Application Load Balancer
+
+
+
+
+
+
+
+
+
+
+
 
 
 
