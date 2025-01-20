@@ -453,6 +453,308 @@ Step 9: Clean up resources
 
 9.2 Delete the VPC
 
+## IAM Hands On Lab
+
+AWS Identity and Access Management (IAM) is a web service that helps you securely control access to AWS resources. You use IAM to constrol who is **authenticated** (signed in) and **authorized** (has permissions) to use resources.
+
+Step 1: Launch EC2 instances with Tags
+
+1.1 Open the EC2 service console, click on **EC2 Dashboard** and click on **Launch instances**
+
+1.2 In the Namw field, enter the value **prod-instance** and click on **Add additional tags**
+
+1.3 Click **Add tag** then in **Key** enter **Env** and **Value** enter **prod**
+
+1.4 Select the default AMI and then select **t2.micro** in the Instance Type
+
+1.5 In **Key pair (login)** select proceed without a key pair and then click **Launch instances**
+
+1.6 Repeat the above steps to create another EC2 instance for the development environment, use different Name and Env tags
+
+<img width="957" alt="1" src="https://github.com/user-attachments/assets/4c5c6de2-e131-4db3-908b-f8d20ee711d0" />
+
+Here is a screenshot of the tags for the prod instance
+
+<img width="835" alt="1 1" src="https://github.com/user-attachments/assets/b85bb166-330f-4e5a-93f3-3eeaa33558c0" />
+
+Here is a screenshot of the tags for the dev instance
+
+<img width="838" alt="1 2" src="https://github.com/user-attachments/assets/6dacb6fd-4c6a-4fd0-bcd4-26cc6b4ec58d" />
+
+Step 2: Create AWS IAM identities
+
+2.1 Open the IAM console, to generate a console login Sign-in URL, click the customize button
+
+2.2 Input an account alias and click the **create alias** button
+
+2.3 Click **Policies** and then click **Create Policy** button 
+
+2.4 Click the JSON tab and paste the following policy, click the **Next: Tags** when finished
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "ec2:*",
+            "Resource": "*",
+            "Condition": {
+                "StringEquals": {
+                    "ec2:ResourceTag/Env": "dev"
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": "ec2:Describe*",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Deny",
+            "Action": [
+                "ec2:DeleteTags",
+                "ec2:CreateTags"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
+
+2.5 Keep the default settings on the next step, click **Next:Review** button. Write a policy name and a description for the policy. Next click the Create policy button. 
+
+2.6 Click **User groups** and then click the **Create group** button
+
+2.7 Type in a **User group name** and select the policy that was just created in **Attach permissions policies - Optional** section
+
+2.8 Click **Users** and then click the **Add users** button. Type in a **User name** and allow two access types, both Programmatic access and AWS Management console access. And then, select **Custom password** and type in the password you want, then click Next
+
+2.9 Select the user group that was just created and click Next, skip the Add user page and move to the next step
+
+2.10 Click **Create user** button. Download the csv file to get the Access key ID and Secret access key. 
+
+2.11 Click Sign in and log in as the new user that was just created. 
+
+Step 3: Test the access for resources
+
+3.1 Open the EC2 console and click **Instances** menu. Select the 'prod-instance' and click **Instance state** button and **Stop instance** button and click **Stop**
+
+<img width="959" alt="2" src="https://github.com/user-attachments/assets/066a60a4-a2cb-4fdf-9fb4-a047a2988e0d" />
+
+A warning sign is appearing because the user does not have permissions to perform the stop EC2 instance operation. 
+
+3.2 Select the instance named 'dev-instance' and click **Instance state** button and click the **Stop instance** button
+
+<img width="956" alt="2 1" src="https://github.com/user-attachments/assets/b1fcf3a9-fc73-44bc-a433-202c44f66ccd" />
+
+The instance has been successfully stopped because the user has permission to perform the stop EC2 instance operation
+
+Step 4: Assign IAM Role for EC2 Instance and Test the access
+
+4.1 Re-login into AWS using the AWS account with administrator role 
+
+4.2 Open the S3 console and click **Create bucket** button
+
+4.3 Create a unique bucket name, leave the remaining settings intact and click create bucket button
+
+4.4 Upload any file in the S3 bucket
+
+4.5 Create one more bucket and upload any file into the S3 bucket
+
+<img width="959" alt="3" src="https://github.com/user-attachments/assets/ef865431-ba46-4e6a-a64f-09d1bf157a74" />
+
+4.6 Open the IAM console, go to policies and click **Create policy**
+
+4.7 Click JSON next to the policy editor and paste the following code
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+        "Action": ["s3:ListAllMyBuckets", "s3:GetBucketLocation"],
+        "Effect": "Allow",
+        "Resource": ["arn:aws:s3:::*"]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:Get*",
+                "s3:List*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::iam-test-user_name/*",
+                "arn:aws:s3:::iam-test-user_name"
+            ]
+        }
+    ]
+}
+```
+
+4.8 Click **Next** and create a name for the policy. Click **Create policy** to attach the policy to the IAM role
+
+<img width="959" alt="4" src="https://github.com/user-attachments/assets/3fb9c3eb-289f-4b8c-8a04-f53f02ab8ab7" />
+
+4.9 Go to the **Roles** and click **Create role** button, select AWS service as the Trusted entity type and choose **EC2** for the service / use case
+
+4.10 Search for the policy that was just created and click the check box to add a permission
+
+4.11 Click **Next** and create a name for the role, click **Create role**
+
+<img width="956" alt="5" src="https://github.com/user-attachments/assets/abac8712-2031-44dd-9714-3065489ba171" />
+
+4.12 Open the EC2 console, select the 'prod-instance' and then click the **Connect** button
+
+4.13 Connect to the instance by using EC2 instance connect and click connect. In the terminal, type the following command: aws s3 ls
+
+<img width="950" alt="6" src="https://github.com/user-attachments/assets/823c5a23-56eb-430c-955d-a002279cdb7a" />
+
+This command is producing an error because the EC2 instance does not have the permissions to access the S3 buckets
+
+4.14 Open the Instances page, select the 'prod-instance'. Click the **Actions** button and select **Security** and click **Modify IAM role**
+
+4.15 Select the IAM role that was previously created and click **Save** button to attach the IAM role to the EC2 Instance
+
+<img width="830" alt="7" src="https://github.com/user-attachments/assets/387a4025-e757-4fc2-a44e-182d7cb83a25" />
+
+4.16 Connect to the 'prod-instance' again and type the aws s3 ls command into the terminal
+
+<img width="953" alt="8" src="https://github.com/user-attachments/assets/76efa0e5-f328-4992-9915-243bddc5f52c" />
+
+We can see the S3 buckets because the EC2 instance has the correct permissions through the IAM role that is attached to the instance
+
+Step 5: Clean up resources
+
+5.1 Delete both of the EC2 instances
+
+5.2 Delete all of the User group, User, Role and policies
+
+## Amazon CloudWatch Hands on Lab
+
+Amazon CloudWatch is a monitoring and observability service which provides you with data and actionable insights to monitor your applications, respond to system-wide performance changes, optimize resource utilisation and get a unified view of operation health. CloudWatch collects monitoring and operational data in the form of logs, metrics and events, providing you with a unified view of your resources. 
+
+Step 1: Create a simple notification service (SNS) topic
+
+1.1 Open the Amazon SNS
+
+1.2 Select **Topics** and click **Create topic**
+
+1.3 For type, select **Standard**, type in a name for the topic. Scroll to the bottom of the screen and click **Create topic**
+
+<img width="958" alt="1" src="https://github.com/user-attachments/assets/34e276a9-b236-4ad5-9029-c1e535f07329" />
+
+1.4 Click **Create subscription**. In the Protocol, drop down select **Email** and enter a working email address. Click **Create subscription**
+
+<img width="955" alt="2" src="https://github.com/user-attachments/assets/6175a584-baf1-4ca5-b4a0-7f9d38118772" />
+
+1.5 A verification email will be sent to the address that you entered with the subject "AWS Notification - Subscription Confirmation". Open the email and click the Confirm subscription link.
+
+<img width="695" alt="3" src="https://github.com/user-attachments/assets/60e155c0-c3d9-4c58-913a-ac51a84b07e1" />
+
+<img width="441" alt="4" src="https://github.com/user-attachments/assets/670f0cf7-7e75-4172-a1a9-40a10551b6fe" />
+
+Step 2: Launch an EC2 Instance
+
+2.1 Open the EC2 service console and click **Launch instance**
+
+2.2 Create a name for the instance and select the **Amazon Linux** for Amazon Machine Image (AMI) 
+
+2.3 Select the **t2.micro** instance type
+
+2.4 In the Network settings section, select **Create security group** option and check out all check boxes allowing traffic
+
+2.5 Expand the **Advanced Details** section and paste the following code into the **User Data** field, click the **Launch instance** button when finished. 
+
+```
+#!/bin/sh 
+yum -y update
+amazon-linux-extras install epel -y
+yum install stress -y
+stress -c 1 --backoff 300000000 -t 30m
+```
+
+<img width="953" alt="5" src="https://github.com/user-attachments/assets/873161f4-5bf8-45ce-9e32-a8e3cabb32df" />
+
+Step 3: Configure a CloudWatch Alarm
+
+3.1 In the EC2 console, click the checkbox next to your server. Click Actions > Monitor and troubleshoot > Manage detailed monitoring
+
+3.2 Check the **Enable** button under Detailed monitoring to provide monitoring data at a 1 minute interval and click Save
+
+3.3 Click the details tab and copy the **Instance ID**
+
+3.4 Click on Actions > Monitoring and troubleshoot > Manage CloudWatch alarms
+
+3.5 Select **Create an alarm**, under Alarm notification, select the SNS topic that was previously created
+
+3.6 In the **Alarm thresholds** section, set the values to trigger an alarm when CPU utilization is greater than 60% and click **Create**
+
+<img width="957" alt="5 1" src="https://github.com/user-attachments/assets/46cf0320-5a3f-4592-a2c1-c71bca680601" />
+
+3.7 Open CloudWatch and select **All alarms** and check the state the of alarm using the **instance-id** to filter the alarms
+
+<img width="952" alt="6" src="https://github.com/user-attachments/assets/2751b509-02be-47ac-8318-40a559471587" />
+
+3.8 In the CloudWatch console, select **Metrics**. Select the **All Metrics** tab and paste the **Instance ID** into the filter
+
+3.9 Click on per-instance Metrics and add an additional filter, select **CPUUtilization** metric
+
+<img width="951" alt="7" src="https://github.com/user-attachments/assets/27858b00-ff3b-4222-a6b7-9ca6e063fd46" />
+
+3.10 Click on **Graphed metrics** button and change the Period to 1 min. Change the graph interval to a custom value of 30min and select Auto refresh of 1 min. 
+
+3.11 Select All alarms and you should be able to see the configured alarms. We will also be receiving an email when the Alarm is triggered.
+
+<img width="951" alt="8" src="https://github.com/user-attachments/assets/0442e6d3-78e0-42f8-8141-00be10a3f739" />
+
+<img width="703" alt="9" src="https://github.com/user-attachments/assets/054c4fa7-8bcc-4d67-aa21-9b6b04e8c225" />
+
+Step 4: Cleam up resources
+
+4.1 Delete the CloudWatch Alarm
+
+4.2 Delete the EC2 Instance
+
+4.3 Delete the SNS Topic
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
