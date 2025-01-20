@@ -332,7 +332,138 @@ Step 7: Clean up resources
 
 7.6 Delete the CloudFormation Stack
 
-In this lab, I learned how to create an AMI, included it in the setup of the Launch Template, created an EC2 Auto scaling group behind an Application Load Balancer
+In this lab, I learned how to create an AMI, included it in the setup of the Launch Template, created an EC2 Auto scaling group behind an Application Load Balancer.
+
+## VPC Hands on Lab
+
+Amazon Virtual Private Cloud (VPC) enables you to launch AWS resources into a virtual network that you have defined. You have complete control over your virtual networking environment, including selection of your own IP address range, creation of subnets and configurations of route tables and network gateway. 
+
+Step 1: Create a VPC
+
+1.1 Open the VPC console and click **Create VPC**
+
+1.2 Under VPC settings, select **VPC and more**. Under Name tag auto generation, type a name for the VPC and set the CIDR block to the default value of 10.0.0.0/16
+
+1.3 Under Number of Availability zones choose 1 AZ amd expand **Customize AZs**. Select First Availability Zone as an A zone. 
+
+1.4 Select the number of public subnets as 1. Select 0 under Number of Private subnets and expand Customize subnets CIDR blocks, set the CIDR block to 10.0.10.0/24!
+
+1.5 Choose **None** for Nat gateways and VPC endpoints and then click the **Create VPC** button at the button
+
+<img width="951" alt="1" src="https://github.com/user-attachments/assets/88b4ae90-b77f-4685-8cc8-ac9d2ff60184" />
+
+1.6 In the left side bar, select **Subnets** and click the refresh button if the newly created subnets is not listed
+
+Step 2: Creating additional subnets
+
+2.1 Click the **Create Subnet** button
+
+2.2 For VPC id, select the VPC that we created previously
+
+2.3 In **Subnet settings** section, enter a subnet name and choose a C availability zone. Click the **Create subnet** button when finished. 
+
+<img width="952" alt="2" src="https://github.com/user-attachments/assets/d128b7c7-5d70-4018-961f-42f298f5963f" />
+
+Step 3: Edit the routing table
+
+3.1 Select **public subnet c** and click **Actions** button in the **Subnet** menu and choose **Edit route table association**
+
+3.2 Select the route table that is associated with the VPC and verify that there is a route via the Internet Gateway and click **Save**
+
+<img width="955" alt="3" src="https://github.com/user-attachments/assets/b6589f3d-26fd-4179-a410-087fcc3d391b" />
+
+Step 4: Create a security group 
+
+4.1 Verify the region code that correlates to the region that the console is in
+
+4.2 In a seperate browser, navigate to the following link (https://ip-ranges.amazonaws.com/ip-ranges.json) and search the JSON for the EC2_INSTANCE_CONNECT and locate the region code that correlates to the region your console is in. Record the ip_prefix value, it will be used for the SSH security group rule source
+
+4.3 Click **Security groups** and then click the **Create security group** button
+
+4.4 Enter a name and description for the security group, select the VPC that we created previously
+
+4.5 Add the following 2 Inbound rules and leave the Outbound as the default and click **Create security group** button when finished:
+* Type: All ICMP - IPv4 Source: Anywhere
+* Type: SSH Source: The ip_prefix value that we recorded earlier
+
+<img width="956" alt="4" src="https://github.com/user-attachments/assets/4d8b0248-db00-4a59-959a-a06c2d17d5d9" />
+
+Step 5: Test EC2 instances network communication
+
+5.1 Open the **EC2 Dashboard** and click **Launch instance**
+
+5.2 Create a name for the EC2 instance and leave the default settings for Amazon Machine Image
+
+5.3 Select **t2.micro** as the instance type and select proceed without a key pair
+
+5.4 Click the **Edit** button in Network settings:
+* Select the VPC that was created previously
+* Select the subnet that was created with the VPC in zone A
+* Enable the Auto-assign Public IP
+
+5.5 In the Security Group section, choose **Select existing security group** and select the security group that was previously created
+
+5.6 Leave all other values as default and click **Launch Instance**
+
+<img width="956" alt="5 1" src="https://github.com/user-attachments/assets/2d68c00b-2dd9-41f4-afd0-c0f5bdb537f0" />
+
+Step 6: Create a new EC2 instance in Public Subnet C
+
+6.1 Repeat the previous steps to launch another EC2 instance
+* Use a different name of the instance
+* Select the subnet that was created in zone C
+
+<img width="953" alt="5 2" src="https://github.com/user-attachments/assets/2a5091d8-3fde-4de9-84ca-fcc51a6c86e9" />
+
+Step 7: Validate connectivity between the EC2 Instances
+
+7.1 In the EC2 console, select the 2nd Instance and note down the Public IPv4 address
+
+7.2 Select the 1st instance and click the **connect** button
+
+7.3 Select the **EC2 Instance Connect** tab, leave the default values and click **Connect**
+
+7.4 In the Linux terminal, type ping <Public IPv4 address of the 2nd instance>. A successful ping response confirms cross-Availability Zone Ec2 communication over ICMP
+
+<img width="941" alt="6" src="https://github.com/user-attachments/assets/95e0a1cb-fee7-4392-8e5d-1c597db1a6c8" />
+
+7.5 Verify internet connectivity by entering the command curl example.com into the terminal
+
+<img width="946" alt="7" src="https://github.com/user-attachments/assets/65ab1c82-2b62-481c-b4d8-3f5edac5ae2e" />
+
+Step 8: Reachability analyzer for troubleshooting
+
+8.1 Open VPC Reachability analyzer 
+
+8.2 Click **Create and analyze path**
+
+8.3 Provide the Name of the Path configuration, Path Source, Path Destination and Protocol and click the **Create and analyze path** button
+
+8.4 Analysis will show **Pending** for a few minutes, click the refresh button
+
+<img width="957" alt="8" src="https://github.com/user-attachments/assets/22976141-9012-4fd3-9827-cb92d58de5d0" />
+
+8.5 Scroll down to view the result. The report will display the components used in the network path for the EC2 instance to reach the Internet Gateway
+
+<img width="959" alt="9" src="https://github.com/user-attachments/assets/05aec89f-f17f-4380-a9aa-b9051ce26115" />
+
+Step 9: Clean up resources
+
+9.1 Terminate the EC2 Instance
+
+9.2 Delete the VPC
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
