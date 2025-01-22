@@ -1,0 +1,7 @@
+$downloadUrl = "https://aka.ms/ssmsfullsetup“
+$savePath = "C:\Users\Administrator\Downloads\SSMS-Setup-ENU.exe"
+$webClient = New-Object System.Net.WebClient
+$webClient.DownloadFile($downloadUrl, $savePath)
+Write-Host "SQL Server Management Studio downloaded successfully."
+Start-Process -FilePath $savePath -Wait
+Write-Host "SQL Server Management Studio installation completed."
