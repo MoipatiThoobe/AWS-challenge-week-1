@@ -40,28 +40,8 @@ Step 2: Launch a web server instance
 
 2.7 Expand the **Advanced Details** tab at the bottom of the screen and configure the **Metadata version** to V1 and V2 (token optional)
 
-2.8 Enter the following code in the **User Data** field
+2.8 Enter the code in the **User Data** field. The code is stored in a file called userdata1.txt
 
-```
-<powershell>
-Install-WindowsFeature -name Web-Server -IncludeManagementTools
-
-$instanceId   = (Invoke-WebRequest -Uri  http://169.254.169.254/latest/meta-data/instance-id -UseBasicParsing).content
-$instanceAZ   = (Invoke-WebRequest -Uri  http://169.254.169.254/latest/meta-data/placement/availability-zone -UseBasicParsing).content
-
-New-Item -Path C:\inetpub\wwwroot\index.html -ItemType File -Force
-Add-Content -Path C:\inetpub\wwwroot\index.html "<title>Windows EC2 Lab</title>"
-Add-Content -Path C:\inetpub\wwwroot\index.html "<font face = `"Verdana`" size = `"5`">"
-Add-Content -Path C:\inetpub\wwwroot\index.html "<center><img src=`"https://d0.awsstatic.com/logos/powered-by-aws.png`" alt=`"Powered by AWS Cloud Computing`"/><center>"
-Add-Content -Path C:\inetpub\wwwroot\index.html "<center><h1>Windows EC2 Lab</h1></center>"
-Add-Content -Path C:\inetpub\wwwroot\index.html "<hr>"
-Add-Content -Path C:\inetpub\wwwroot\index.html "<center> <b>EC2 Instance Metadata</b> </center>"
-Add-Content -Path C:\inetpub\wwwroot\index.html "<center> <b>Instance ID:</b> $instanceId </center>"
-Add-Content -Path C:\inetpub\wwwroot\index.html "<center> <b>AWS Availablity Zone:</b> $instanceAZ </center>"
-Add-Content -Path C:\inetpub\wwwroot\index.html "</font>"
-</powershell>
-
-```
 2.9 Verify your that your selections are correct and then choose **Launch instance**
 
 2.10 Click **View Instances** button. Once the instance is launched, click the checkbox next to the web server to view details about the EC2 instance
@@ -489,38 +469,7 @@ Step 2: Create AWS IAM identities
 
 2.3 Click **Policies** and then click **Create Policy** button 
 
-2.4 Click the JSON tab and paste the following policy, click the **Next: Tags** when finished
-
-```
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "ec2:*",
-            "Resource": "*",
-            "Condition": {
-                "StringEquals": {
-                    "ec2:ResourceTag/Env": "dev"
-                }
-            }
-        },
-        {
-            "Effect": "Allow",
-            "Action": "ec2:Describe*",
-            "Resource": "*"
-        },
-        {
-            "Effect": "Deny",
-            "Action": [
-                "ec2:DeleteTags",
-                "ec2:CreateTags"
-            ],
-            "Resource": "*"
-        }
-    ]
-}
-```
+2.4 Click the JSON tab and paste the JSON code. The code is stored in a file named policy.json, click the **Next: Tags** when finished
 
 2.5 Keep the default settings on the next step, click **Next:Review** button. Write a policy name and a description for the policy. Next click the Create policy button. 
 
@@ -566,31 +515,7 @@ Step 4: Assign IAM Role for EC2 Instance and Test the access
 
 4.6 Open the IAM console, go to policies and click **Create policy**
 
-4.7 Click JSON next to the policy editor and paste the following code
-
-```
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-        "Action": ["s3:ListAllMyBuckets", "s3:GetBucketLocation"],
-        "Effect": "Allow",
-        "Resource": ["arn:aws:s3:::*"]
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:Get*",
-                "s3:List*"
-            ],
-            "Resource": [
-                "arn:aws:s3:::iam-test-user_name/*",
-                "arn:aws:s3:::iam-test-user_name"
-            ]
-        }
-    ]
-}
-```
+4.7 Click JSON next to the policy editor and paste the json code. The code is stored in a file called policy2.json. 
 
 4.8 Click **Next** and create a name for the policy. Click **Create policy** to attach the policy to the IAM role
 
@@ -664,15 +589,7 @@ Step 2: Launch an EC2 Instance
 
 2.4 In the Network settings section, select **Create security group** option and check out all check boxes allowing traffic
 
-2.5 Expand the **Advanced Details** section and paste the following code into the **User Data** field, click the **Launch instance** button when finished. 
-
-```
-#!/bin/sh 
-yum -y update
-amazon-linux-extras install epel -y
-yum install stress -y
-stress -c 1 --backoff 300000000 -t 30m
-```
+2.5 Expand the **Advanced Details** section and paste the code into the **User Data** field. The code can be found in a file called userdata2.txt. Click the **Launch instance** button when finished. 
 
 <img width="953" alt="5" src="https://github.com/user-attachments/assets/873161f4-5bf8-45ce-9e32-a8e3cabb32df" />
 
