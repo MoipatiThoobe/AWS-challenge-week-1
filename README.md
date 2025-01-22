@@ -718,6 +718,234 @@ Step 4: Cleam up resources
 
 4.3 Delete the SNS Topic
 
+## Amazon RDS MySQL Hands on Lab
+
+Amazon RDS is a web service that makes it easy to set up, operate and scale relational database in the cloud. 
+
+Prerequisite:
+* Launch an EC2 web server instance with a security group that allows TCP traffic on port 80
+
+<img width="957" alt="1" src="https://github.com/user-attachments/assets/0b661867-604a-46e6-83bc-7efc39f30a9b" />
+
+Step 1: Create VPC Security grouo
+
+1.1 Open the VPC dashboard, click **Security Groups** and then click **Create Security Group** button
+
+1.2 Type in a security group name and description, use the same VPC that you used when creating the Ec2 instance
+
+1.3 Under "Inbound Rules", click the **Add rule** button. Add a new inbound rule for the EC2 server:
+* Type: **MySQL/Aurora(3306)**
+* Protocol: **TCP(6)**
+* Source: **The security of the EC2 instance**
+
+1.4 Scroll down and click the **Create security group** button
+
+<img width="947" alt="2" src="https://github.com/user-attachments/assets/243858d1-1999-4f61-b27a-fc5a9a13847a" />
+
+Step 2: Launch an RDS instance
+
+2.1 Open the Amazon RDS console and click on **Create database**
+
+2.2 Under **Choose a database creation method**, select Standard option
+
+2.3 Select **MySQL** in Engine options
+
+2.4 Select **Free Tier** in Template options
+
+2.5 In the **Settings** section, create an DB Instance identifier, Master username and Master Password
+
+2.6 In **Instance configuration** section, select burstable classes-db.t3.micro
+
+2.7 In the **Storage** section, select General Purpose SSD as the Storage Type
+
+2.8 In the **Connectivity** section
+* VPC: Default VPC
+* Subnet group: No
+* VPC Security group: Select the security group that was previously created
+* Database port: 3306
+
+2.9 For the **Database authentication**, select **Password Authentication**
+
+2.10 Expand **Additional Configuration**, create an initial database name and select default.mysql8.0 for **DB Parameter group and option group**
+
+2.11 In the Backup section, select the following:
+* Check on **enable automatic backups**
+* Provide **Backup retention period** as 7 days
+* **Backup Window: No preference**
+* Leave the rest as default
+
+2.12 Review the settings and then click **Create database**
+
+<img width="955" alt="3" src="https://github.com/user-attachments/assets/3d471944-ef45-4c47-b9bd-7ccbed470bb6" />
+
+
+Step 3: Save RDS credentials
+
+3.1 Open AWS Secrets Manager console and click **Store a new secret**
+
+3.2 Under **Secret type**, select **Credentials for Amazon RDS database**. Provide the username and password that you to create the database. 
+
+3.3 Under **Database**, select the database that was just created and click **Next**
+
+3.4 Create a name for the secret and click **Next**
+
+3.5 Leave the **Secret rotation** with its default values and click **Next**. Review the settings and click **Store**
+
+<img width="955" alt="4" src="https://github.com/user-attachments/assets/a7bf78f0-cfe1-4744-87e2-2b2c7406e170" />
+
+Step 4: Access RDS from the EC2 instance
+
+4.1 Create an IAM Instance Profile and attach it to the EC2 Instance
+
+<img width="948" alt="5" src="https://github.com/user-attachments/assets/36e1dd93-4294-4af3-8932-32cd269502d0" />
+
+<img width="948" alt="6" src="https://github.com/user-attachments/assets/ca25f7a2-8025-477c-9791-49a4951dacf9" />
+
+4.2 Open the IAM console, select **Policies** and then click **Create policy**
+
+4.3 Click **Choose a service**. Type **Secrets Manager** in the search bar and click **Secrets Manager**
+
+4.4 In the **Access level** section, select the arrow next to **Read** and then the check box by **GetSecretValue**
+
+4.5 Click on the arrow next to **Resources** and select **Alls**. Click the **Next** button twice 
+
+4.6 On the **Review Policy** page, create a name for the policy and click **Create policy**
+
+<img width="950" alt="7" src="https://github.com/user-attachments/assets/fea44e9e-7473-447e-b6be-494d298e9479" />
+
+4.7 On the navigation menu, select **Roles** and type the name of the Instance profile in the search box, click the instance profile
+
+4.8 Under **Permission policies**, click **Attach policies**
+
+4.9 Search for the policy that we just created. Check the box and click **Attach policy**
+
+<img width="952" alt="8" src="https://github.com/user-attachments/assets/a79afee3-ccf0-4849-b8d5-4129e7d5f6eb" />
+
+4.10 Open the EC2 console, select the EC2 instance and copy the public IP address
+
+4.11 Open a new tab and navigate to the web server using the public IP address
+
+<img width="948" alt="9" src="https://github.com/user-attachments/assets/261edf57-511e-4394-9047-3bf6e0232d83" />
+
+Step 5: Create an RDS Snapshot
+
+5.1 Navigate to RDS management console, select the RDS instance, click on Instance actions and select **Take a snapshot**
+
+5.2 Create a name for the snapshot and click on **Take a snapshot**
+
+<img width="955" alt="10" src="https://github.com/user-attachments/assets/a891f21c-69fd-4edc-9fd9-f1981d62574d" />
+
+Step 6: Clean up resources
+
+6.1 Delete the RDS instance and its snapshot
+
+6.2 Delete the Ec2 Instance
+
+##Amazon RDS RQL Server Hands On Lab
+
+Prerequisites:
+* Launch an EC2 windows server instance with the security group that allows TCP on port 80 and 3389
+
+<img width="956" alt="1" src="https://github.com/user-attachments/assets/8345dccf-49a5-48dc-b53a-e4ec5a47ca46" />
+
+Step 1: Launch an RDS Instance
+
+1.1 Open the Amazon RDS Console and click on **Create database**
+
+1.2 For **Choose a database creation method**, select Easy Create option
+
+1.3 For Engine options, select **Microsoft SQL Server** and for Database instance size, select **Dev/Test**
+
+1.4 Create a DB Instance identifier, Master username and Master password
+
+1.5 Open **Set up EC2 connection - optional** and select **Connect to an EC2 compute resource**. Choose the EC2 windows instance that was created in the prerequisite. 
+
+1.6 Review the settings and click **Create database**
+
+<img width="956" alt="2" src="https://github.com/user-attachments/assets/04a17c0f-0ae6-4d0c-a4ef-01e888a4b264" />
+
+Step 2: Access RDs from the EC2 instance
+
+2.1 Open the Amazon RDS, select **Databases** and select the SQL Server instance that was just created
+
+2.2 On the **Connectivity** tab, copy the endpoint and the port number 
+
+2.3 Connect to the EC2 instance using RDP
+
+<img width="950" alt="3" src="https://github.com/user-attachments/assets/a8eebc56-2406-4bef-8be6-d6dae3caa261" />
+
+2.4 When the remote desktop loads, open Powershell and paste the installer script into the terminal. You can find the script in a file called SSMSinstaller.txt
+
+2.5 Microsoft SQL Server Management Studio will automatically open, leave the location path as default and click install
+
+<img width="950" alt="4" src="https://github.com/user-attachments/assets/1fcdd5ff-393b-462f-b986-0fed8a40e97a" />
+
+Step 3: Connect to your SQL Server DB Instance using SSMS
+
+3.1 Open SQL Server Management Studio (SSMS)
+
+3.2 The Connect to Server dialog box will apear, input the following information:
+* Server type: Database Engine
+* Server Name: the database DNS name, followed by a comma and the port number
+* Authentication: select SQL Server Authentication
+
+3.3 You will be prompted to Login, enter the username and password that you used when creating the database
+
+Step 4: Explore SQL Server DB Instance
+
+4.1 On the File menu, select New and then choose Query with Current connection
+
+4.2 Enter the following SQL query in the query editor: select @VERSION
+
+4.3 Run the query. SSMS will return the SQL Server version of the Amazon RDS DB Instance
+
+<img width="954" alt="5 1" src="https://github.com/user-attachments/assets/184c955f-cfc9-4f73-b109-b75b236e6e05" />
+
+<img width="953" alt="5" src="https://github.com/user-attachments/assets/e8722234-3ca9-4837-8429-01f24ae733a7" />
+
+Step 5: Clean up resources
+
+5.1 Delete the RDS DB instance
+
+5.2 Delete the EC2 instance
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
