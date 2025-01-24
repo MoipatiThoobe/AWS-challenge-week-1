@@ -826,6 +826,368 @@ Step 5: Clean up resources
 
 5.2 Delete the EC2 instance
 
+## Amazon Elastic File System (EFS) Hands On Lab
+
+Amazon EFS is designed to provide serverless, fully elastic file storage that lets you share file data without provisioning or managing storage capacity and performance. EFS automatically grows and shrinks as you add and remove files with no need for management or provisioning. 
+
+Step 1: Create a VPC with two Public subnets
+
+1.1 Open the VPC console and click the **Create VPC** button
+
+1.2 In the VPC settings, fill in the following information, click **Create VPC** when finished:
+* **Resources to create** : VPC and more
+* **Name tag auto-generate**: create a name for the VPC
+* **IPv4 CIDR Block**: Leave this as 10.0.0.0/16
+* **Tenancy**: leave this as default
+* **Number of AZs**: 2
+* **Number of Public subnets**: 2
+* **Number of Private Subnets**: 0
+* **Nat Gateway**: None
+* **VPC EndPoints**: None
+* **DNS Options**: leave both as checked
+
+<img width="953" alt="1" src="https://github.com/user-attachments/assets/e85be587-420a-401e-8499-4af468ecf470" />
+
+Step 2: Creating a security group for EC2
+
+2.1 Open the EC2 Service console
+
+2.2 Scroll down to **Network and Security** and click on **Security Groups**
+
+2.3 In the security groups console, click **Create Security group** button
+
+2.4 Create a name and description for the security group
+
+2.5 In the VPC section, select the VPC that was previously created
+
+2.6 Create an **Inbound rule** by selecting **SSH** from the type list. In the Source, select **Anywhere IPV4**. You can optionally add a description for what the rule does.
+
+2.7 Leave the **Outbound rules** as default and click the **Create Security Group** button
+
+<img width="953" alt="2" src="https://github.com/user-attachments/assets/70f4805c-c9f2-4fcd-afb4-75b6fa1795dc" />
+
+Step 3: Create a Security group for EFS
+
+3.1 Repeat steps 2.1 to 2.5
+
+3.2 Create an **Inbound rule** by selecting **NFS** from the type list. In the Source, select **Custom** and then select the security group that was created previously
+
+3.3 Click **Create Security Group**
+
+<img width="955" alt="3" src="https://github.com/user-attachments/assets/fe8f1df6-6f6c-4c38-a338-3a5298547efb" />
+
+3.4 Click on the **Edit Inbound Rules** button
+
+3.5 Click the **Add rule** button and select **NFS** in the Type Dropdown. In the Source, select **Custom** and the **EFS Security group**. Click **Save Rule** when finished
+
+<img width="953" alt="4" src="https://github.com/user-attachments/assets/5c73310f-b6bc-4e58-a868-085ba37a2fc5" />
+
+Step 4: Create the Elastic File System
+
+4.1 Open the EFS console and click on **Create File System**
+
+4.2 When the Popup message appears, click on **Customize*
+
+4.3 Create a name for the file system
+
+4.4 Select the **Regional** storage class
+
+4.5 Check the **Enable automatic backups** box
+
+4.6 Lifecyle Management
+* Transition into infrequent access (IA): 30 day(s) since last access
+* Transition into archive: None
+* Encryption: Uncheck **Enable Encryption of data at rest**
+
+4.7 For Performance settings, select the Throughput mode as **Bursting**, click the **Next** button
+
+4.8 Select the VPC that was created previously 
+
+4.9 Remove the Security groups
+
+4.10 In the Availability zone section, click the **Security group** drop down and add the EFS security group. Do the same for the second availability zone. 
+
+4.11 Click the **Next** button twice. On the review page, check the settings and then click **Create**
+
+<img width="955" alt="5" src="https://github.com/user-attachments/assets/789a031e-a91c-4502-a3ca-8d7a7004821c" />
+
+Step 5: Create the first EC2 Instance and Mount the EFS drive
+
+5.1 Open the EC2 console and click on the **Launch Instance** button
+
+5.2 Create a name for the file server. In the AMI section, leave the default AMI that is selected.
+
+5.3 Select a **t2.micro** instance type section and select **Proceed without a key pair** in the Key Pair(Login) section
+
+5.4 Click **Edit** in the Network settings section. 
+* Select the VPC that was created previously
+* Select the first subnet that was created previously
+* Enable **Auto-Assign Public IP**
+* Click on **Select existing Security Group** and choose both of the security groups that were previously created
+
+5.5 Click **Edit** in the Configure Storage section.
+* Make sure that **EFS** is selected and then click on **Add shared file system**
+* Uncheck automatically create and attach Security groups
+* Check Automatically Mount shared file system by attaching required user data script
+
+5.6 Review the settings and click **Launch Instance** when finished
+
+<img width="957" alt="7" src="https://github.com/user-attachments/assets/3964fd48-7a0c-4875-92b5-04991f1e3332" />
+
+Step 2: Create the second EC2 instance and Mount the EFS drive
+
+2.1 Repeat the previous steps to create an instance but change the following:
+* Use a different name for the new instance
+* Place the instance in the second subnet that was previously created
+
+<img width="953" alt="8" src="https://github.com/user-attachments/assets/498b4fb7-5ccd-4327-b3ef-4fddc4a89d11" />
+
+Step 3: Connect to our EC2 instances using Instance Connect
+
+3.1 On the Instances page, click the checkbox next to the first instance and click **Connect**
+
+3.2 On the **Connect to instance** page, select **EC2 Instance connect** and click the **Connect** button
+
+<img width="944" alt="9" src="https://github.com/user-attachments/assets/e148fee7-92f5-4194-90e5-05cdd927e7e7" />
+
+3.3 On a seperate tab, repeat the previous steps to connect to the second instance using Instance connect
+
+<img width="959" alt="10" src="https://github.com/user-attachments/assets/84aeb512-fcc0-4521-903f-31a6b085a177" />
+
+Step 4: Create a file on the EFS drive
+
+4.1 Open the tab of the first instance's terminal, input the following command to change directories to the EFS mount: cd /mnt/efs/fs1
+
+4.2 Enter the following command to create a new file on EFS: sudo touch newfile.txt
+
+4.3 Enter the following command to confirm that the file was created: ls
+
+<img width="948" alt="11" src="https://github.com/user-attachments/assets/6e875bd8-afe2-4fd0-a4e5-c67f9d3e92d0" />
+
+Step 5: Demonstrate the EFS mount from the second instance
+
+5.1 Open the tab of the second instance's terminal. Input the following command to change the directory to the mount point: cd /mnt/efs/fs1
+
+5.2 Input the following command to see the files and folders on the mount: ls
+
+<img width="941" alt="12" src="https://github.com/user-attachments/assets/a94a61c4-8676-403d-97ab-c1da90d1eb68" />
+
+5.3 Enter the following command to create a new file: sudo touch SecondNewFile.txt
+
+5.4 Navigate to the first instance's tab and enter the following command to confirm that we can see both files: ls
+
+<img width="947" alt="14" src="https://github.com/user-attachments/assets/2123f210-e875-4aa9-bcad-ca9ac069430e" />
+
+Step 6: Clean up resources
+
+6.1 Delete the EFS drive
+
+6.2 Delete the 2 EC2 instances
+
+6.3 Delete the 2 subnets 
+
+6.4 Delete the VPC
+
+## Amazon S3 Hands On Lab
+
+Amazon Simple Storage Service (Amazon S3) is an object storage service that offers scalability, data availability, security and performance. It can be used to store and retrieve any amount of data, at any time, from anywhere in the world. 
+
+Prerequsite steps:
+1. Download the CloudFormation template, the file is called "S3-General-ID-Lab.yaml" and save it to your local hard drive
+2. Open the CloudFormation service and select the **Create stack** button and then select **With new resources (standard)**
+3. In "Specify template" section, select **Upload a template file** and then select **Choose file** button. Select the template file that was previously downloaded and then click the **Next** button
+4. On the Specify stack details page, fill in the following:
+* **Stack name**: Create a name for the stack
+* **ANID**: leave as default
+* **InstanceType**: select t2.micro
+* **MyIp**: input the IP address of your machine followed by /32
+* **MyVPC**: select the VPC that you want to use to setup the instance
+* **PublicSubnet**: select a subnet within the VPC
+5. Click on **Next**, the everything on this page as defaults and click **Next** again
+6. Review the settings and click on **Submit** to create the web server
+
+<img width="958" alt="1" src="https://github.com/user-attachments/assets/f58feace-6607-4612-95cf-11da9cef170b" />
+
+7. Open the EC2 instance console and select "Instances" on the menu.
+<img width="959" alt="2" src="https://github.com/user-attachments/assets/f224414a-5969-4352-8ecc-10725df17b25" />
+
+8. On the Instances console, select the instance and copy the "Public IPv4 DNS"
+
+9. Paste this address into a new tab on the web browser
+ 
+11. <img width="947" alt="2 1" src="https://github.com/user-attachments/assets/d3eb08ed-6351-4fd0-8689-f7e6f8ded12c" />
+
+Step 1: Create a bucket in S3 
+
+1.1 Navigate to the S3 Service console and click the **Create bucket** button
+
+1.2 On the "Create bucket" page, input the following information:
+* Confirm that you are using the correct region
+* Select **General purpose** bucket type
+* Create a unqiue name for the bucket
+* On the "Block public access settings for this bucket" section, leave **Block all public access** as checked
+
+1.3 Leave the rest of the settings as default and click on the **Create bucket** button
+
+<img width="952" alt="3" src="https://github.com/user-attachments/assets/56047bf0-438f-41a5-a2c9-5d95970753fb" />
+
+1.4 On the Buckets page, click the name of the bucket that was just created. 
+
+Step 2: Adding objects to the buckets
+
+2.1 On the bucket's overview page, click the **Upload** button and then click the **Add files**. Upload all of the photos stored inside of the zip folder. 
+
+2.2 Once all of the images have been uploaded, click the **Upload** button at the bottom of the page
+
+<img width="956" alt="4" src="https://github.com/user-attachments/assets/b45c76c1-9aac-45c2-be40-bbb5517ccc2c" />
+
+Step 3: Working with objects in the S3 console
+
+3.1 On the bucket overview page, click the **Create folder** button
+
+3.2 Create a name for the folder and then click the **Create folder** button
+
+<img width="953" alt="5" src="https://github.com/user-attachments/assets/c98b31a4-3d60-4510-86fc-f7c0e86570db" />
+
+3.3 Select the "photo7.jpg" object and click on the **Actions** dropdown, and select **Move**
+
+3.4 In the "Destination type" section, select **General purpose bucket** and then click **Browse S3**
+
+3.5 A pop named Destination will appear, select the folder that was previously created and then click **Choose destination**. Now that the destination is set, click on **Move** to move the object. 
+
+<img width="958" alt="6" src="https://github.com/user-attachments/assets/341003e7-8776-47ef-81a4-0fee6897715d" />
+
+Step 4: Accessing objects stored in S3
+
+4.1 Open the IAM Service console and select **Policies** on the menu. Click the **Create policy** button
+
+4.2 On the "Specify permissions" page, select the **Visual** button on the "Policy editor". On the "Select a service" section, select **S3**
+
+4.3 Under "Actions allowed" search bar, enter GetObject and in "Filter actions" put a check next to "GetObject"
+
+4.4 Under "Resources" make sure the **Specific** is selected and then click on **Add ARNs link. 
+
+4.5 A dialogue box will appear, paste the name of the bucket in the "Resource bucket name" field. In the "Resource object name" field, select the check box next to "Any object name" and click the **Add ARNs** button. Click the **Next** button.
+
+4.6 Under "Review and create", create a name for the policy and click the **Create policy** button
+
+<img width="949" alt="7" src="https://github.com/user-attachments/assets/c97a62d7-c849-4054-8bdb-6458ad70d5f1" />
+
+4.7 On the menu, select **Roles** and click the **Create role** button
+
+4.8 Under "Trustes entity type", select **AWS Service** and then under "Use case" select **EC2**
+
+4.9 Under "Choose a use case for the specified service", select **EC2** and then click the **Next** button
+
+4.10 Search for **S3** in the "Filter policies" search bar. Select the policy that was previously created and then click **Next**
+
+4.11 Create a name for the role and then click the **Create role** button
+
+<img width="956" alt="8" src="https://github.com/user-attachments/assets/fca7792b-e4f8-4850-8cb0-7852ced68102" />
+
+Step 5: Attach the role to the EC2 Instance
+
+5.1 Open the EC2 service console and click on **Instances** 
+
+5.2 Find the EC2 instance that was previously created, right click on the instance and select **Security** > **Modify IAM role**
+
+5.3 Select the role that was previously created from the "IAM role" dropdown and click on the **Update IAM role** button
+
+<img width="956" alt="9" src="https://github.com/user-attachments/assets/2f7d3cc1-c2d7-47c8-8954-33b09d980da4" />
+
+5.4 Open the tab where you accessed the EC2 instance on the broswer. Enter the name of the bucket that was created and the region that the bucket was created in and then click the **Submit** button. We are able to see the images that we uploaded in a gallery, which means that EC2 instance has the correct permissions to access the S3 bucket.
+
+<img width="956" alt="10" src="https://github.com/user-attachments/assets/4bc83c06-a64f-4ce6-a910-a79b78d35c0b" />
+
+
+Steo 6: Enable bucket versioning
+
+6.1 Open the S3 console and click on **Buckets** on the menu. Click the name of the bucket that was previously created and select the "Properties" tab. In the "Bucket versioning" section, click the **Edit** button. 
+
+6.2 Select **Enable** and then click the **Save changes** button
+
+<img width="951" alt="11" src="https://github.com/user-attachments/assets/5a5706f0-23b0-456a-8a25-964d3c5957dc" />
+
+6.3 Return to the "Objects" tab and click the **Upload** button. Go to the images folder that was downloaded and upload the "photo1.jpg" file that is inside of the "V2" folder. 
+
+6.4 Flip the "Show Versions" toggle to display all of the versions of the objects in the bucket. A version ID and two versions of "photo1.jpg" are now visible. 
+
+<img width="922" alt="12" src="https://github.com/user-attachments/assets/e6dde736-138e-417e-9fa0-2fb24353947a" />
+
+6.5 Return the web browser tab and refresh the page. The first photo is now visible and no longer covered with a red x. 
+
+<img width="947" alt="13" src="https://github.com/user-attachments/assets/b4faa739-7885-4ee7-8fdb-4d1823289b85" />
+
+Step 7: Setting up a Lifecycle policy
+
+7.1 On the bucket overview page, select the **Management** tab. Under "Lifecycle rules", click the **Create lifecycle rule** button. 
+
+7.2 Create a name for the rule and select the scope as **This rule applies to all objects in the bucket**, put a check in the box to acknowledge the warning. 
+
+7.3 Under "Lifecycle rule actions", put a check in the bos next to **Move noncurrent versions of objects between storage classes & Permanently delete noncurrent versions**
+
+7.4 Under "Transition noncurrent versions of objects betweeb storage classes" select **Standard-IA**. For "Choose a storage class transitions" enter 30 for "Days after objects noncurrent"
+
+7.5 Under "Permanently delete noncurrent versions of objects" enter 30. Review the timeline summary of the rule and click **Create rule** when finished. 
+
+<img width="953" alt="14" src="https://github.com/user-attachments/assets/a6215494-7c23-42aa-887e-c53723ee67d4" />
+
+Step 8: Clean up resources
+
+8.1 Delete objects in the bucket using the Empty feature
+
+8.2 Delete the bucket
+
+8.3 Delete the cloudformation stack
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
