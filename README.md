@@ -1140,177 +1140,391 @@ Step 8: Clean up resources
 
 8.3 Delete the cloudformation stack
 
+## Provisioning on Cloud Formation
 
+AWS CloudFormation is a service that helps you model and set up your AWS resources so that you can spend less time managing those resources. You can create a template that describes all of the AWS resources that you want and CloudFormation takes care of provisioning and configuring the resources for you.
 
+### Setting up a VPC using CloudFormation Hands on Lab
 
+Step 1: Create a VPC using CloudFormation
 
+1.1 Open a text editor (Notepad) or IDE (Visual studio code) and create a yaml file called sfid-cfn-vpc.yaml
 
+1.2 Copy the following code into the yaml file and save the file
+```
+Resources:
+  # Create a VPC
+  MainVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+```
 
+1.3 Open the AWS CloudFormation console and click on **Create stack**
 
+1.4 In the prepare template section, select **Template is ready**
 
+1.5 In the Template source section, select **Upload a template file**. Click on the **Choose file** button and navigate to where the yaml file was saved. Select the file and click **Open**. Click on the **Next** button. 
 
+1.6 Create a name for the stack and click the **Next** button twice
 
+1.7 On the review page, review the settings and click the **submit** button when finished.
 
+<img width="958" alt="1" src="https://github.com/user-attachments/assets/0b8ca9cb-084f-4e1e-b2bf-4a7c9ec65c66" />
 
+1.8 Open the AWS VPC console to check the VPC that was created using CloudFormation
 
+<img width="953" alt="4" src="https://github.com/user-attachments/assets/66bd0ef8-c117-4e6a-bfe8-9919b37f1d32" />
 
+1.9 Add the following code to the bottom of the YAML file and save the file
 
+```
+      EnableDnsHostnames: 'true'
+      EnableDnsSupport: 'true'
+      Tags:
+      - Key: Name
+        Value: VPC for SFID CFN
+```
 
+1.10 Steps to update the template stack
+* Open the AWs CloudFormation Stacks console and select “SFID-CFN-VPC" in the Stack List
+* Click on the **Update** button
+* In the Prepare template section, select **Replace current template**
+* In template source section, select **Upload a template file**
+* Click on **Choose file** and navigate to the the YAML file was saved
+* Select the YAML file and click **Open**
+* Click **Next**
+* Leave the Parameters and Configure stack options as default, click **Next** twice
+* Click Submit
 
+1.11 Leave the Parameters and Configure stack options as default and click the **Next** button twice.
 
+1.12 Review the settings and click the **Submit** when finished
 
+<img width="958" alt="3" src="https://github.com/user-attachments/assets/f4c1f5da-2e12-48af-a4c9-c88372f327bc" />
 
+1.13 Navigate to the AWS VPC console, the VPC Tag and DNS options was enabled using CloudFormation
 
+<img width="776" alt="Screenshot 2025-02-06 111826" src="https://github.com/user-attachments/assets/871fb1ff-f27a-4dae-a44e-6f956c2c508a" />
 
+Step 2: Create an Internet Gateway
 
+2.1 Add the following code to the bottom of the YAML file and save the file
 
+```
+  # Create and attach InternetGateway
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    DependsOn: MainVPC
 
+  AttachIGW:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref MainVPC
+      InternetGatewayId: !Ref InternetGateway
+```
 
+2.2 Repeat the previous steps for updating the stack template
 
+2.3 Navigate to the AWS VPC console to see the Internet gateway that has been attached to the VPC using CloudFormation
 
+<img width="954" alt="6" src="https://github.com/user-attachments/assets/ce1ce657-de2d-42c8-b9da-efc161e0db4e" />
 
+Step 3: Create first subnet
 
+3.1 Add the following code to the bottom of the YAML file and save the file
 
+```
+  # Create First Subnet
+  FirstSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MainVPC
+      CidrBlock: 10.0.10.0/24
+      AvailabilityZone: "us-east-1a"
+      Tags:
+      - Key: Name
+        Value: Public Subnet A - SFID
+```
+
+3.2 Repeat the previous steps for updating the stack template
+
+<img width="951" alt="8" src="https://github.com/user-attachments/assets/da89bf7d-dc55-4589-b758-dfe358eddbae" />
+
+3.3 Navigate to the VPC console to see the subnet that was added to the VPC using CloudFormation
+
+<img width="953" alt="9" src="https://github.com/user-attachments/assets/f1bdca15-bf2a-4bbc-a35d-e9debffeeb55" />
+
+Step 4: Create an additional subnet 
+
+4.1 Add the following code to the buttom of the YAML file and save the file
+
+```
+  # Creating additional subnet
+  SecondSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MainVPC
+      CidrBlock: 10.0.20.0/24
+      AvailabilityZone: "us-east-1b"
+      Tags:
+      - Key: Name
+        Value: Public Subnet B - SFID
+```
+
+4.2 Repeat the previous steps for updating the stack template
+
+4.3 Navigate to the VPC console to see the additional subnet
 
+<img width="953" alt="11" src="https://github.com/user-attachments/assets/28b696b3-65df-40a5-a8cc-b928a1eb2c07" />
 
+Step 5: Setting up a route table
 
+5.1 Add the following code to the bottom of the YAML file and save the file
 
+```
+  # Create and Set Public Route Table
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:  !Ref MainVPC
+      Tags:
+      - Key: Name
+        Value: Public Route Table
 
+  PublicRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn: AttachIGW
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
 
+  # Associate Public Subnets to Public Route Table
+  PublicSubnet1RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref FirstSubnet
+      RouteTableId: !Ref PublicRouteTable
 
+  PublicSubnet2RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SecondSubnet
+      RouteTableId: !Ref PublicRouteTable
+```
 
+5.2 Repeat the previous steps for updating the stack template
 
+5.3 Navigate to the VPC console to see the Route table that was created using CloudFormation
 
+<img width="953" alt="13" src="https://github.com/user-attachments/assets/85fd7ab7-fd00-4b86-a189-78ab95676960" />
 
+Step 6: Create a Security group
 
+6.1 Add the following code to the bottom of the YAML file, replace the IP address with your own IP address, then save the file
 
+```
+  # Create Security Group for the following:
+  MainSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group for Web Server
+      VpcId: !Ref MainVPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+  # Replace the IP address below by your Public IP Address:
+        CidrIp: 127.0.0.1/32
+      Tags:
+      - Key: Name
+        Value: Web Server Security Group - SFID
+```
+6.2 Repeat the previous steps for updating the stack template
 
+6.3 Navigate to the VPC console to see the security group that was created using CloudFormation
 
+<img width="953" alt="15" src="https://github.com/user-attachments/assets/a969d516-3e4d-4659-83cb-6f18d4552dd8" />
 
+Step 7: Add a description to the CloudFormation template and Add Outputs
 
+7.1 Add the following code to the top of the YAML file
 
+```
+Description: Introduction to CloudFormation SFID - Virtual Private Cloud (VPC)
+```
 
+7.2 Add the foollowing code to the bottom of the YAML file and then save the file
 
+```
+Outputs:
+  MainSubnet:
+    Value: !Ref FirstSubnet
+    Description: Public Subnet ID with Direct Internet Route
 
+  MainSecurityGroup:
+    Value: !Ref MainSecurityGroup
+    Description: Security Group ID for the Web Server
+```
 
+7.3 Repeat the previous steps for updating the stack template
 
+7.3 On the CloudFormation console, navigate to the "Stack info" and "Outputs" tabs to see the changes that were just added to the template
 
+<img width="481" alt="18" src="https://github.com/user-attachments/assets/589d6e83-13aa-429f-ae8e-ff83f62f0668" />
 
+<img width="462" alt="19" src="https://github.com/user-attachments/assets/bd037071-ef61-4182-8b00-c37125524ac4" />
 
 
+### Setting up an EC2 instance using CloudFormation on Lab
 
+Step 1: Launch an EC2 Instance
 
+1.1 Open a text editor or IDE and create an empty YAML file called sfid-cfn-ec2.yaml
 
+1.2 Copy and paste the following code into the YAML file and save the file
 
+```
+Resources:
+# Create EC2 Linux
+  WebServerInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-07caf09b362be10b8"
+      InstanceType: t3a.micro
+```
+1.3 Open the CloudFormation console and click on the **Create stack** button
 
+1.4 In the Prepare template, select **Template is ready**
 
+1.5 In the Template source section, select **Upload a template file**. Click on the **Choose file** button and navigate to where the yaml file was saved. Select the file and click **Open**. Click on the **Next** button. 
 
+1.6 Create a name for the stack anc click the **Next** button. Leave the Configure stack options as default and click the **Next** button
 
+1.7 Review the settings and click the **Submit** button when finished
 
+<img width="948" alt="2" src="https://github.com/user-attachments/assets/21f5b61e-67df-46fd-b3be-273e322d8ff3" />
 
+1.8 Open the AWs EC2 console to check the EC2 instance that was created using CloudFormation
 
+<img width="954" alt="3" src="https://github.com/user-attachments/assets/04f15b9b-721f-478b-8714-0371195ddfb0" />
 
+Step 2: Tag and pass User Data to the EC2 instance
 
+2.1 Add the following code to the bottom of the YAML file and save the file
 
+```
+      Tags:
+          - Key: Name
+            Value: Web Server for IMD
+      UserData: 
+        Fn::Base64:
+          !Sub |
+          #!/bin/sh
+          yum -y install httpd
+          chkconfig httpd on
+          systemctl start httpd
+          echo '<html><center><text="#252F3E" style="font-family: Amazon Ember"><h1>AWS CloudFormation is Fun !!!</h1>' > /var/www/html/index.html
+          echo '<h3><img src="https://d0.awsstatic.com/logos/powered-by-aws.png"></h3></html>' >> /var/www/html/index.html
+```
+2.2 Steps to update the CloudFormation template stack
+* Open the AWs CloudFormation Stacks console and select “SFID-CFN-EC2" in the Stack List
+* Click on the **Update** button
+* In the Prepare template section, select **Replace current template**
+* In template source section, select **Upload a template file**
+* Click on **Choose file** and navigate to the the YAML file was saved
+* Select the YAML file and click **Open**
+* Click **Next**
+* Leave the Parameters and Configure stack options as default, click **Next** twice
+* Click Submit
 
+<img width="535" alt="5" src="https://github.com/user-attachments/assets/92363a90-ad9e-42e4-b86d-1e55cb72471a" />
 
+Step 3: Terminate the EC2 instance
 
+3.1 Open the CloudFormation stacks console
 
+3.2 Select the stack in the stack list and click on the **Delete** button. A prompt will appear to confirm that you want to delete the stack and its resources, click on **Delete stack**
 
+<img width="953" alt="7" src="https://github.com/user-attachments/assets/9f98ddf8-d7ee-48df-be13-3ead339da3b3" />
 
+3.3 Navigate to the EC2 Dashboard to the confirm that the EC2 instance was deleted
 
+<img width="953" alt="8" src="https://github.com/user-attachments/assets/020da7e1-5909-4f9a-a073-ad639f4c98f2" />
 
+Step 4: Launch EC2 instance inside of the VPC
 
+4.1 Add the following code to the top of the YAML file
 
+```
+Parameters:
+  PublicSubnet:
+    Description: Select a Public Subnet created in the "VPC for SFID CFN" Lab (Hint - Search for "SFID")
+    Type: 'AWS::EC2::Subnet::Id'
+  SecurityGroup:
+    Description: Select the Security Group created in the "VPC for SFID CFN" Lab (Hint - Search for "SFID")
+    Type: 'AWS::EC2::SecurityGroup::Id'
+```
 
+4.2 Add the following to the bottom of the YAML file and save the file
 
+```
+      NetworkInterfaces:
+        - GroupSet:
+            - !Ref SecurityGroup
+          AssociatePublicIpAddress: 'true'
+          DeviceIndex: '0'
+          DeleteOnTermination: 'true'
+          SubnetId: !Ref PublicSubnet
+```
 
+4.3 Open the CloudFormation console and click on the **Create stack** button
 
+4.4 In the Prepare template, select **Template is ready**
 
+4.5 In the Template source section, select **Upload a template file**. Click on the **Choose file** button and navigate to where the yaml file was saved. Select the file and click **Open**. Click on the **Next** button. 
 
+4.6 Provide a stack name, set the desired paramaters (select a subnet and a security group) and click **Next**
 
+4.7 Review the settings and click on the **Submit** button when finished
 
+<img width="955" alt="10" src="https://github.com/user-attachments/assets/441708a8-e564-4864-8d29-dbcdc9f2effd" />
 
+4.8 Open the EC2 console to check the EC2 instance that was created using CloudFormation. Copy and paste the Public Ip address to see the web server in the browser.
 
+<img width="953" alt="11" src="https://github.com/user-attachments/assets/7d956787-6798-4402-b8da-6818a6cca1e0" />
 
+Step 5: Adding a description to the CloudFormation template and add Outputs
 
+5.1 Add the following code to the top of the YAML file
 
+```
+Description: Introduction to CloudFormation SFID - Elastic Compute Cloud (EC2)
+```
 
+5.2 Add the following code to the bottom of the YAML file and save the file
 
+```
+Outputs:
+  PublicDNS:
+    Value: !Join 
+      - ''
+      - - 'http://'
+        - !GetAtt 
+          - WebServerInstance
+          - PublicDnsName
+    Description: Web Host Public URL
+```
 
+5.3 Repeat the steps to update the CloudFormation template stack 
 
+5.4  On the CloudFormation console, navigate to the "Stack info" and "Outputs" tabs to see the changes that were just added to the template
 
+<img width="485" alt="13" src="https://github.com/user-attachments/assets/8e2b99e8-b459-494c-83c4-c70749338f13" />
 
+<img width="493" alt="15" src="https://github.com/user-attachments/assets/b3bb4d95-e385-401b-90d1-bdbcce0b1de9" />
 
+Step 6: Clean up resources
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+6.1 Delete the EC2 stack firts and then delete the VPC stack. This will delete the stacks and its resources. 
