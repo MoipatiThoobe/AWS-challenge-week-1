@@ -1,7 +1,7 @@
 # AWS-challenge-week-1
 Week 1 of the 12 weeks of AWS challenge
 
-The first week of this challenge focused on the AWS compute services. Compute services allow you to develop, deploy, run and scale their applications and worksloads in the cloud. AWS compute services have the following characteristics: 
+The first week of this challenge focused on the AWS compute services. Compute services in AWS allow users to develop, deploy, run and scale their applications and workloads in the cloud. AWS compute services have the following characteristics: 
 * Right compute for your workloads
 * Accelerate from idea to market
 * Offer built in security
@@ -30,13 +30,16 @@ Step 2: Launch a web server instance
 
 2.2 Click on the **Launch Instance** button
 
-2.3 Create a name for the instance. In the **Amazon machine Image** section, choose **Windows** and then choose Microsoft Windows Server 2022 Base
+2.3 Create a name for the instance. In the **Amazon machine Image** section, choose **Windows** and then choose Microsoft Windows Server 2022 Base AMI
 
 2.4 Select **t3.medium** in Instance type section
 
 2.5 Select the key pair that you created previously 
 
-2.6 Click the **Edit** button in **Network settings** section. Check the default VPC and subnet, set **Auto-assign public IP** to Enable. Select **Create security group**, create a security group name and description. For security group rule 1, set type to rdp and Source type to My IP. Select **Add security group rule**. For **Security group rule 2** set Type to HTTP and Source type to My IP. 
+2.6 Click the **Edit** button in **Network settings** section. 
+* Check the default VPC and subnet is being used
+* set **Auto-assign public IP** to Enable 
+* Select **Create security group**, create a security group name and description. For security group rule 1, set type to RDP and Source type to My IP. Select **Add security group rule**. For **Security group rule 2** set Type to HTTP and Source type to My IP. 
 
 2.7 Expand the **Advanced Details** tab at the bottom of the screen and configure the **Metadata version** to V1 and V2 (token optional)
 
@@ -48,7 +51,7 @@ Step 2: Launch a web server instance
 
 <img width="955" alt="2" src="https://github.com/user-attachments/assets/d634e80d-f897-41bd-b3e1-46d067161756" />
 
-2.11 Open a new browser tab and browse the web server by entering the EC2 instance's Public IPv4 DNS name into the browser
+2.11 Open a new browser tab and enter the EC2 instance's Public IPv4 DNS name into the browser to see the web server
 
 <img width="956" alt="2 1" src="https://github.com/user-attachments/assets/c953f7dd-6206-4822-b984-1aef38babac4" />
 
@@ -60,7 +63,7 @@ Step 3: Connecting to your Windows Instance
 
 3.3 On the next screen, click **Upload private key file** and select the private key that you downloaded previously and click **Decrypt password**
 
-3.4 Copy the Adminstrator password and start the RDP application and connect to the hostname of the instance
+3.4 Copy the Administrator password and start the RDP application and connect to the hostname of the instance
 
 Here is a screenshot of the RDP to show that the session has been established and the instance is successfully connected
 
@@ -72,7 +75,10 @@ Step 4: Clean up the resources
 
 4.2 Confirm that you want to terminate the instance by clicking the **Terminate** button
 
-In this Lab I created a new key pair, launched a web server instance and connected to the instance using Remote Desktop. 
+In this Hands on lab, I learned how to do thw following: 
+* How to create a new key pair, 
+* How to launch a web server instance 
+* How to connect to the instance using Remote Desktop. 
 
 
 ## EC2 Auto Scaling Hands On Lab
@@ -85,9 +91,9 @@ We will need to create an AMI (Amazon Machine Image) for our Auto Scaling group 
 
 Step 1: Download and Launch the CloudFormation template
 
-1.1 Download the CloudFormation template (you can find the template in the repo) and save it to your local hard drive
+1.1 Download the CloudFormation template (the template is saved in a file named EC2-Auto-Scaling-Lab.yaml) and save it to your local hard drive
 
-1.2 Open the CloudFormation serice on AWS
+1.2 Open the CloudFormation service on AWS
 
 1.3 Select the **Create stack** button and then select **With new resources (standard)**
 
@@ -109,7 +115,7 @@ Step 1: Download and Launch the CloudFormation template
 
 Step 2: Confirm the successful setup of the instance
 
-2.1 Navigate to the Ec2 service console and select **Instances** from the left hand menu
+2.1 Navigate to the EC2 service console and select **Instances** from the left hand menu
 
 <img width="946" alt="2" src="https://github.com/user-attachments/assets/f7646e3c-913c-43c5-9bde-3a3d5f945c63" />
 
@@ -139,7 +145,7 @@ Step 4: Create a new security group for the Auto Scaling group
 
 <img width="958" alt="5" src="https://github.com/user-attachments/assets/bd46a63c-a508-4c2f-9025-7a2b5e916f39" />
 
-The prerequisite steps are now completed
+The prerequisite steps have now been completed
 
 Step 1: Create a Launch template
 
@@ -284,13 +290,13 @@ Step 6: Test the Auto Scaling group
 
 <img width="955" alt="10" src="https://github.com/user-attachments/assets/f2bf96db-710b-437d-ba98-0f8d686107de" />
 
-6.2 At the botton of the web page, click the **Start CPU Load Generation** link. When the CPU load reaches 25% for a sustained period, the Auto scaling policy will start creating new instances to meet demand. 
+6.2 At the bottom of the web page, click the **Start CPU Load Generation** link. When the CPU load reaches 25% for a sustained period, the Auto scaling policy will start creating new instances to meet demand. 
 
-6.3 In the "Instances" sections we will see new instances being created by the Auto Scaling Group
+6.3 In the "Instances" section we will see new instances being created by the Auto Scaling Group
 
 <img width="948" alt="11 3" src="https://github.com/user-attachments/assets/ee2bdda5-68d0-4c68-a1e7-d5085dbf12e7" />
 
-6.4 Once a number of new instances have successfully started, refresh the web broswer of the web host. The Instance ID, Availability zone and Private IP will change as the load balancer distributes the requests across the auto scaling group.
+6.4 Once a number of new instances have successfully started, refresh the web browser of the web host. The Instance ID, Availability zone and Private IP will change as the load balancer distributes the requests across the auto scaling group.
 
 <img width="939" alt="12 1" src="https://github.com/user-attachments/assets/a727aca5-a381-464b-b1a2-c40a371e0e85" />
 
@@ -312,7 +318,10 @@ Step 7: Clean up resources
 
 7.6 Delete the CloudFormation Stack
 
-In this lab, I learned how to create an AMI, included it in the setup of the Launch Template, created an EC2 Auto scaling group behind an Application Load Balancer.
+In this Hands on lab, I learned how to do thw following:
+* Create an AMI
+* Include the AMI in the setup of the Launch Template 
+* Create an EC2 Auto scaling group behind an Application Load Balancer
 
 ## VPC Hands on Lab
 
@@ -320,7 +329,7 @@ Amazon Virtual Private Cloud (VPC) enables you to launch AWS resources into a vi
 
 Step 1: Create a VPC
 
-1.1 Open the VPC console and click **Create VPC**
+1.1 Open the AWS VPC console and click **Create VPC**
 
 1.2 Under VPC settings, select **VPC and more**. Under Name tag auto generation, type a name for the VPC and set the CIDR block to the default value of 10.0.0.0/16
 
@@ -328,7 +337,7 @@ Step 1: Create a VPC
 
 1.4 Select the number of public subnets as 1. Select 0 under Number of Private subnets and expand Customize subnets CIDR blocks, set the CIDR block to 10.0.10.0/24!
 
-1.5 Choose **None** for Nat gateways and VPC endpoints and then click the **Create VPC** button at the button
+1.5 Choose **None** for Nat gateways and VPC endpoints and then click the **Create VPC** button at the bottom
 
 <img width="951" alt="1" src="https://github.com/user-attachments/assets/88b4ae90-b77f-4685-8cc8-ac9d2ff60184" />
 
@@ -356,11 +365,11 @@ Step 4: Create a security group
 
 4.1 Verify the region code that correlates to the region that the console is in
 
-4.2 In a seperate browser, navigate to the following link (https://ip-ranges.amazonaws.com/ip-ranges.json) and search the JSON for the EC2_INSTANCE_CONNECT and locate the region code that correlates to the region your console is in. Record the ip_prefix value, it will be used for the SSH security group rule source
+4.2 In a separate browser, navigate to the following link (https://ip-ranges.amazonaws.com/ip-ranges.json) and search the JSON for the EC2_INSTANCE_CONNECT and locate the region code that correlates to the region your console is in. Record the ip_prefix value as it will be used for the SSH security group rule source
 
 4.3 Click **Security groups** and then click the **Create security group** button
 
-4.4 Enter a name and description for the security group, select the VPC that we created previously
+4.4 Enter a name and description for the security group, select the VPC that was previously created
 
 4.5 Add the following 2 Inbound rules and leave the Outbound as the default and click **Create security group** button when finished:
 * Type: All ICMP - IPv4 Source: Anywhere
@@ -433,15 +442,22 @@ Step 9: Clean up resources
 
 9.2 Delete the VPC
 
+In this Hands On lab, I learned how to do the following:
+* Create a VPC
+* Create subnets
+* Edit a route table
+* Create a security group
+* Use Reachability Analyzer for troubleshooting
+
 ## IAM Hands On Lab
 
-AWS Identity and Access Management (IAM) is a web service that helps you securely control access to AWS resources. You use IAM to constrol who is **authenticated** (signed in) and **authorized** (has permissions) to use resources.
+AWS Identity and Access Management (IAM) is a web service that helps you securely control access to AWS resources. You use IAM to control who is **authenticated** (signed in) and **authorized** (has permissions) to use AWS resources.
 
 Step 1: Launch EC2 instances with Tags
 
 1.1 Open the EC2 service console, click on **EC2 Dashboard** and click on **Launch instances**
 
-1.2 In the Namw field, enter the value **prod-instance** and click on **Add additional tags**
+1.2 In the Name field, enter the value **prod-instance** and click on **Add additional tags**
 
 1.3 Click **Add tag** then in **Key** enter **Env** and **Value** enter **prod**
 
@@ -449,7 +465,7 @@ Step 1: Launch EC2 instances with Tags
 
 1.5 In **Key pair (login)** select proceed without a key pair and then click **Launch instances**
 
-1.6 Repeat the above steps to create another EC2 instance for the development environment, use different Name and Env tags
+1.6 Repeat the above steps to create another EC2 instance for the development environment, use different Name value and tags
 
 <img width="957" alt="1" src="https://github.com/user-attachments/assets/4c5c6de2-e131-4db3-908b-f8d20ee711d0" />
 
@@ -555,9 +571,14 @@ Step 5: Clean up resources
 
 5.2 Delete all of the User group, User, Role and policies
 
+In this Hands on lab I learned how to do the following:
+* Create AWS IAM identities
+* Assign an IAM role for EC2 instance 
+* Test the access for resources
+
 ## Amazon CloudWatch Hands on Lab
 
-Amazon CloudWatch is a monitoring and observability service which provides you with data and actionable insights to monitor your applications, respond to system-wide performance changes, optimize resource utilisation and get a unified view of operation health. CloudWatch collects monitoring and operational data in the form of logs, metrics and events, providing you with a unified view of your resources. 
+Amazon CloudWatch is a monitoring and observability service which provides you with data and actionable insights to monitor your applications, respond to system-wide performance changes, optimize resource utilization and get a unified view of operation health. CloudWatch collects monitoring and operational data in the form of logs, metrics and events, providing you with a unified view of your resources. 
 
 Step 1: Create a simple notification service (SNS) topic
 
@@ -627,7 +648,7 @@ Step 3: Configure a CloudWatch Alarm
 
 <img width="703" alt="9" src="https://github.com/user-attachments/assets/054c4fa7-8bcc-4d67-aa21-9b6b04e8c225" />
 
-Step 4: Cleam up resources
+Step 4: Clean up resources
 
 4.1 Delete the CloudWatch Alarm
 
@@ -635,16 +656,21 @@ Step 4: Cleam up resources
 
 4.3 Delete the SNS Topic
 
+In this Hands On lab, I learned how to do the following:
+* Create an SNS Topic
+* Launch an EC2 instance
+* Configure a CloudWatch Alarm
+
 ## Amazon RDS MySQL Hands on Lab
 
-Amazon RDS is a web service that makes it easy to set up, operate and scale relational database in the cloud. 
+Amazon RDS is a web service that makes it easy to set up, operate and scale relational databases in the cloud. 
 
-Prerequisite:
+Lab prerequisite:
 * Launch an EC2 web server instance with a security group that allows TCP traffic on port 80
 
 <img width="957" alt="1" src="https://github.com/user-attachments/assets/0b661867-604a-46e6-83bc-7efc39f30a9b" />
 
-Step 1: Create VPC Security grouo
+Step 1: Create VPC Security group
 
 1.1 Open the VPC dashboard, click **Security Groups** and then click **Create Security Group** button
 
@@ -758,6 +784,12 @@ Step 6: Clean up resources
 
 6.2 Delete the Ec2 Instance
 
+In this Hands On lab, I learned how to do the following:
+* Create a VPC Security group
+* Launch an RDS instance
+* Save RDS credentials
+* Access RDS from an EC2 instance
+
 ##Amazon RDS RQL Server Hands On Lab
 
 Prerequisites:
@@ -801,7 +833,7 @@ Step 3: Connect to your SQL Server DB Instance using SSMS
 
 3.1 Open SQL Server Management Studio (SSMS)
 
-3.2 The Connect to Server dialog box will apear, input the following information:
+3.2 The Connect to Server dialog box will appear, input the following information:
 * Server type: Database Engine
 * Server Name: the database DNS name, followed by a comma and the port number
 * Authentication: select SQL Server Authentication
@@ -825,6 +857,10 @@ Step 5: Clean up resources
 5.1 Delete the RDS DB instance
 
 5.2 Delete the EC2 instance
+
+In this hands on lab, I learned how to do the following:
+* Launch an RDS Instance
+* Access the RDS Instance from EC2
 
 ## Amazon Elastic File System (EFS) Hands On Lab
 
@@ -894,7 +930,7 @@ Step 4: Create the Elastic File System
 
 4.5 Check the **Enable automatic backups** box
 
-4.6 Lifecyle Management
+4.6 Lifecycle Management
 * Transition into infrequent access (IA): 30 day(s) since last access
 * Transition into archive: None
 * Encryption: Uncheck **Enable Encryption of data at rest**
@@ -950,7 +986,7 @@ Step 3: Connect to our EC2 instances using Instance Connect
 
 <img width="944" alt="9" src="https://github.com/user-attachments/assets/e148fee7-92f5-4194-90e5-05cdd927e7e7" />
 
-3.3 On a seperate tab, repeat the previous steps to connect to the second instance using Instance connect
+3.3 On a separate tab, repeat the previous steps to connect to the second instance using Instance connect
 
 <img width="959" alt="10" src="https://github.com/user-attachments/assets/84aeb512-fcc0-4521-903f-31a6b085a177" />
 
@@ -988,17 +1024,26 @@ Step 6: Clean up resources
 
 6.4 Delete the VPC
 
+In this hands on lab, I learned how to do the following:
+* Create a VPC with 2 Public subnets
+* Create security groups for EC2 and EFS
+* Create an EFS
+* Create both EC2 instances and mount the EFS drive
+* Connect to both EC2 instances using Instance connect
+* Create a file on the EFS drive
+* Demonstrate the EFS mount from the second instance
+
 ## Amazon S3 Hands On Lab
 
 Amazon Simple Storage Service (Amazon S3) is an object storage service that offers scalability, data availability, security and performance. It can be used to store and retrieve any amount of data, at any time, from anywhere in the world. 
 
-Prerequsite steps:
+Prerequisite steps:
 1. Download the CloudFormation template, the file is called "S3-General-ID-Lab.yaml" and save it to your local hard drive
 2. Open the CloudFormation service and select the **Create stack** button and then select **With new resources (standard)**
 3. In "Specify template" section, select **Upload a template file** and then select **Choose file** button. Select the template file that was previously downloaded and then click the **Next** button
 4. On the Specify stack details page, fill in the following:
 * **Stack name**: Create a name for the stack
-* **ANID**: leave as default
+* **AmiID**: leave as default
 * **InstanceType**: select t2.micro
 * **MyIp**: input the IP address of your machine followed by /32
 * **MyVPC**: select the VPC that you want to use to setup the instance
@@ -1024,7 +1069,7 @@ Step 1: Create a bucket in S3
 1.2 On the "Create bucket" page, input the following information:
 * Confirm that you are using the correct region
 * Select **General purpose** bucket type
-* Create a unqiue name for the bucket
+* Create a unique name for the bucket
 * On the "Block public access settings for this bucket" section, leave **Block all public access** as checked
 
 1.3 Leave the rest of the settings as default and click on the **Create bucket** button
@@ -1075,7 +1120,7 @@ Step 4: Accessing objects stored in S3
 
 4.7 On the menu, select **Roles** and click the **Create role** button
 
-4.8 Under "Trustes entity type", select **AWS Service** and then under "Use case" select **EC2**
+4.8 Under "Trusted entity type", select **AWS Service** and then under "Use case" select **EC2**
 
 4.9 Under "Choose a use case for the specified service", select **EC2** and then click the **Next** button
 
@@ -1095,12 +1140,12 @@ Step 5: Attach the role to the EC2 Instance
 
 <img width="956" alt="9" src="https://github.com/user-attachments/assets/2f7d3cc1-c2d7-47c8-8954-33b09d980da4" />
 
-5.4 Open the tab where you accessed the EC2 instance on the broswer. Enter the name of the bucket that was created and the region that the bucket was created in and then click the **Submit** button. We are able to see the images that we uploaded in a gallery, which means that EC2 instance has the correct permissions to access the S3 bucket.
+5.4 Open the tab where you accessed the EC2 instance on the browser. Enter the name of the bucket that was created and the region that the bucket was created in and then click the **Submit** button. We are able to see the images that we uploaded in a gallery, which means that EC2 instance has the correct permissions to access the S3 bucket.
 
 <img width="956" alt="10" src="https://github.com/user-attachments/assets/4bc83c06-a64f-4ce6-a910-a79b78d35c0b" />
 
 
-Steo 6: Enable bucket versioning
+Step 6: Enable bucket versioning
 
 6.1 Open the S3 console and click on **Buckets** on the menu. Click the name of the bucket that was previously created and select the "Properties" tab. In the "Bucket versioning" section, click the **Edit** button. 
 
@@ -1126,7 +1171,7 @@ Step 7: Setting up a Lifecycle policy
 
 7.3 Under "Lifecycle rule actions", put a check in the bos next to **Move noncurrent versions of objects between storage classes & Permanently delete noncurrent versions**
 
-7.4 Under "Transition noncurrent versions of objects betweeb storage classes" select **Standard-IA**. For "Choose a storage class transitions" enter 30 for "Days after objects noncurrent"
+7.4 Under "Transition noncurrent versions of objects between storage classes" select **Standard-IA**. For "Choose a storage class transitions" enter 30 for "Days after objects noncurrent"
 
 7.5 Under "Permanently delete noncurrent versions of objects" enter 30. Review the timeline summary of the rule and click **Create rule** when finished. 
 
@@ -1139,6 +1184,14 @@ Step 8: Clean up resources
 8.2 Delete the bucket
 
 8.3 Delete the cloudformation stack
+
+In this hands on lab, I learned how to do the following:
+* Create a bucket in s3
+* Add objects to the S3 bucket
+* Work with the objects in the S3 Console
+* Access objects stored in the S3
+* Enable bucket versioning
+* Setting up a Lifecycle policy
 
 ## Provisioning on Cloud Formation
 
@@ -1257,7 +1310,7 @@ Step 3: Create first subnet
 
 Step 4: Create an additional subnet 
 
-4.1 Add the following code to the buttom of the YAML file and save the file
+4.1 Add the following code to the button of the YAML file and save the file
 
 ```
   # Creating additional subnet
@@ -1355,7 +1408,7 @@ Step 7: Add a description to the CloudFormation template and Add Outputs
 Description: Introduction to CloudFormation SFID - Virtual Private Cloud (VPC)
 ```
 
-7.2 Add the foollowing code to the bottom of the YAML file and then save the file
+7.2 Add the following code to the bottom of the YAML file and then save the file
 
 ```
 Outputs:
@@ -1376,6 +1429,12 @@ Outputs:
 
 <img width="462" alt="19" src="https://github.com/user-attachments/assets/bd037071-ef61-4182-8b00-c37125524ac4" />
 
+In this hands on lab, I learned how to do the following:
+* Create a VPC
+* Create an Internet gateway
+* Create 2 subnets in two different AZs
+* Setting up a routing table
+* Create a security group
 
 ### Setting up an EC2 instance using CloudFormation on Lab
 
@@ -1485,7 +1544,7 @@ Parameters:
 
 4.5 In the Template source section, select **Upload a template file**. Click on the **Choose file** button and navigate to where the yaml file was saved. Select the file and click **Open**. Click on the **Next** button. 
 
-4.6 Provide a stack name, set the desired paramaters (select a subnet and a security group) and click **Next**
+4.6 Provide a stack name, set the desired parameters (select a subnet and a security group) and click **Next**
 
 4.7 Review the settings and click on the **Submit** button when finished
 
@@ -1527,4 +1586,10 @@ Outputs:
 
 Step 6: Clean up resources
 
-6.1 Delete the EC2 stack firts and then delete the VPC stack. This will delete the stacks and its resources. 
+6.1 Delete the EC2 stack first and then delete the VPC stack. This will delete the stacks and its resources. 
+
+In this hands on lab, I learned how to do the following:
+* Launch an EC2 instance
+* Tag and pass User Data to the instance
+* Terminate the EC2 instance
+* Launch EC2 instance in the Lab VPC
